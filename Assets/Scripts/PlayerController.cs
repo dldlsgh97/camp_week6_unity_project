@@ -7,10 +7,12 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Move")]
     [SerializeField] float moveSpeed;
+    private float originalSpped;
     Vector2 curMovementInput;
     [SerializeField] float jumpForce;
-    [SerializeField] bool isGround;
+    [SerializeField] bool isGround = true;
     [SerializeField] LayerMask groundLayerMask;
+    bool isGameStart = true;
 
     [Header("Look")]
     public Transform CameraContainer;
@@ -26,15 +28,26 @@ public class PlayerController : MonoBehaviour
     private Animator playerAnim;
     [SerializeField] bool isJump;
 
+    [Header("Fall Damage")]
+    [SerializeField] float fallDamageStandard = 5f;
+
+   
+
+
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
         playerAnim = GetComponentInChildren<Animator>();
     }
+    private void Start()
+    {
+        originalSpped = moveSpeed;
+    }
 
     private void FixedUpdate()
     {
         Move();
+        CheckGroundStatus();
     }
     private void LateUpdate()
     {
@@ -87,23 +100,62 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);       
-    }
-    private void OnCollisionEnter(Collision collision)
-    {
-
-        if(collision.gameObject.layer == 6)
+        rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);
+        if (isGameStart)
         {
-            isGround = true;
+            isGameStart = false;
         }
+        else
+        {
+            CharacterManager.Instance.Player.condition.uICondition.Stamina.Subtract(10);
+        }
+        
+    }
+    
+
+    public void SppedBuff(float amount)
+    {
+        StartCoroutine(IncreasePlayerSpeed(amount));
+    }
+    private IEnumerator IncreasePlayerSpeed(float amount)
+    {
+        moveSpeed += 5;
+        yield return new WaitForSeconds(5);
+        moveSpeed = originalSpped;
     }
 
-    private void OnCollisionExit(Collision collision)
+    void CheckGroundStatus()
     {
-        if (collision.gameObject.layer == 6)
+        RaycastHit hit;
+        Vector3 rayStart = transform.position + Vector3.up * 0.1f;
+        float rayLength = 1.2f;
+
+        if (Physics.Raycast(rayStart, Vector3.down, out hit, rayLength, groundLayerMask))
+        {
+            if (!isGround)
+            {
+                
+                // ÂøÁö ½Ã ³«ÇÏ µ¥¹ÌÁö °è»ê
+                float fallSpeed = rigidbody.velocity.y;
+                PlayerFallDamage(fallSpeed);                          
+            }
+            isGround = true;
+        }        
+        else
         {
             isGround = false;
-            playerAnim.SetBool("IsJump", isGround);
+        }
+        playerAnim.SetBool("IsJump", !isGround);
+    }
+
+    void PlayerFallDamage(float damage)
+    {
+        float fallDamage = Mathf.Abs(Mathf.Round(damage));
+        if(fallDamage >= fallDamageStandard)
+        {
+            CharacterManager.Instance.Player.condition.uICondition.Health.Subtract(fallDamage);
         }
     }
+
+    
 }
