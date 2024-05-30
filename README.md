@@ -37,7 +37,7 @@
     4. 벽타기 및 매달리기
         - 추후 구현예정
     5. 다양한 아이템 구현
-        - [상호작용](https://www.notion.so/e033efd89cae4e4f8444b85a918c2d36?pvs=21)
+        - [맵 구현](https://www.notion.so/a952f5078a2c4f6da41ad4d877ef8234?pvs=4)
     6. 장비 장착
         - 추후 구현예정
     7. 레이저 트랩
