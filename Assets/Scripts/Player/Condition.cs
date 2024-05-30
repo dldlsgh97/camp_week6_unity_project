@@ -6,15 +6,15 @@ using UnityEngine.UI;
 
 public class Condition : MonoBehaviour
 {
-    [SerializeField] float curValue;
+    public float CurValue;
     [SerializeField] float maxValue;
     [SerializeField] float startValue;
-    [SerializeField] float passiveValue;
+    public float PassiveValue;
     [SerializeField] Image uiBar;
 
     private void Start()
     {
-        curValue = startValue;
+        CurValue = startValue;
     }
 
     private void Update()
@@ -24,15 +24,20 @@ public class Condition : MonoBehaviour
 
     private float GetPercentage()
     {
-        return curValue / maxValue;
+        return CurValue / maxValue;
     }
 
     public void Add(float amount) 
     {
-        curValue = MathF.Min(curValue + amount, maxValue);
+        CurValue = MathF.Min(CurValue + amount, maxValue);
     }
     public void Subtract(float amount)
     {
-        curValue = Mathf.Max(curValue - amount, 0.0f);
+        CurValue = Mathf.Max(CurValue - amount, 0.0f);
+    }
+
+    public void SetToMaxValue()
+    {
+        CurValue = maxValue;
     }
 }

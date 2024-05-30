@@ -92,12 +92,23 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && isGround)
+        if (context.phase == InputActionPhase.Started && isGround && CanJump())
         {
             playerAnim.SetBool("IsJump", true);
         }
     }
 
+    bool CanJump()
+    {
+        float stamina = CharacterManager.Instance.Player.condition.uICondition.Stamina.CurValue;
+
+        if(stamina <= 10)
+        {
+            return false;
+        }
+
+        return true;
+    }
     public void Jump()
     {
         rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);
