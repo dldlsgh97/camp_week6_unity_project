@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Move")]
     [SerializeField] float moveSpeed;
+    private float originalSpped;
     Vector2 curMovementInput;
     [SerializeField] float jumpForce;
     [SerializeField] bool isGround;
@@ -30,6 +31,10 @@ public class PlayerController : MonoBehaviour
     {
         rigidbody = GetComponent<Rigidbody>();
         playerAnim = GetComponentInChildren<Animator>();
+    }
+    private void Start()
+    {
+        originalSpped = moveSpeed;
     }
 
     private void FixedUpdate()
@@ -87,14 +92,15 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);       
+        rigidbody.AddForce(Vector2.up * jumpForce, ForceMode.Impulse);
+        CharacterManager.Instance.Player.condition.uICondition.Stamina.Subtract(10);
     }
     private void OnCollisionEnter(Collision collision)
     {
 
         if(collision.gameObject.layer == 6)
         {
-            isGround = true;
+            isGround = true;            
         }
     }
 
@@ -105,5 +111,16 @@ public class PlayerController : MonoBehaviour
             isGround = false;
             playerAnim.SetBool("IsJump", isGround);
         }
+    }
+
+    public void SppedBuff(float amount)
+    {
+        StartCoroutine(IncreasePlayerSpeed(amount));
+    }
+    private IEnumerator IncreasePlayerSpeed(float amount)
+    {
+        moveSpeed += 5;
+        yield return new WaitForSeconds(5);
+        moveSpeed = originalSpped;
     }
 }
